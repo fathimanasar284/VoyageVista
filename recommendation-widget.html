@@ -1,0 +1,334 @@
+<!-- Recommendation Widget - Include on home and destination pages -->
+<div class="recommendation-widget">
+    <h2>Recommended for You</h2>
+    <div class="recommendation-slider" id="recommendation-slider">
+      <div class="slider-loader">
+        <div></div><div></div><div></div>
+      </div>
+    </div>
+    <a href="recommendations.html" class="view-all-recommendations">View All Recommendations</a>
+  </div>
+  
+  <style>
+    .recommendation-widget {
+      background-color: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      margin: 30px 0;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .recommendation-widget h2 {
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+      color: #333;
+      text-align: center;
+    }
+    
+    .recommendation-slider {
+      display: flex;
+      gap: 20px;
+      overflow-x: auto;
+      padding: 10px 0;
+      scroll-behavior: smooth;
+      scrollbar-width: thin;
+      scrollbar-color: #ff6600 #f0f0f0;
+      position: relative;
+      min-height: 270px;
+    }
+    
+    .recommendation-slider::-webkit-scrollbar {
+      height: 8px;
+    }
+    
+    .recommendation-slider::-webkit-scrollbar-track {
+      background: #f0f0f0;
+      border-radius: 10px;
+    }
+    
+    .recommendation-slider::-webkit-scrollbar-thumb {
+      background-color: #ff6600;
+      border-radius: 10px;
+    }
+    
+    .recommendation-card-mini {
+      flex: 0 0 270px;
+      background-color: #fff;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease;
+      cursor: pointer;
+      position: relative;
+    }
+    
+    .recommendation-card-mini:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    }
+    
+    .recommendation-card-mini img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+    }
+    
+    .recommendation-card-mini .card-content {
+      padding: 15px;
+    }
+    
+    .recommendation-card-mini .card-title {
+      font-size: 1.1rem;
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: #333;
+    }
+    
+    .recommendation-card-mini .card-description {
+      font-size: 0.9rem;
+      color: #666;
+      /* Alternative approach without webkit properties */
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: block;
+      max-height: 2.7em;
+      line-height: 1.35em;
+      position: relative;
+      margin-bottom: 10px;
+    }
+
+    /* Add ellipsis at the end */
+    .recommendation-card-mini .card-description:after {
+      content: "...";
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      background: white;
+      padding-left: 3px;
+    }
+    
+    .recommendation-card-mini .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+    
+    .recommendation-card-mini .tag {
+      background-color: #f0f0f0;
+      color: #666;
+      font-size: 0.7rem;
+      padding: 3px 6px;
+      border-radius: 4px;
+    }
+    
+    .view-all-recommendations {
+      display: block;
+      text-align: center;
+      color: #ff6600;
+      text-decoration: none;
+      font-weight: bold;
+      margin-top: 15px;
+      padding: 5px;
+      transition: color 0.3s;
+    }
+    
+    .view-all-recommendations:hover {
+      color: #e55c00;
+      text-decoration: underline;
+    }
+    
+    .slider-loader {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: 200px;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    
+    .slider-loader div {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      margin: 0 5px;
+      background-color: #ff6600;
+      border-radius: 50%;
+      animation: loading 1.4s infinite ease-in-out both;
+    }
+    
+    .slider-loader div:nth-child(1) { animation-delay: 0s; }
+    .slider-loader div:nth-child(2) { animation-delay: 0.2s; }
+    .slider-loader div:nth-child(3) { animation-delay: 0.4s; }
+    
+    @keyframes loading {
+      0%, 80%, 100% { transform: scale(0); }
+      40% { transform: scale(1); }
+    }
+    
+    /* Responsive adjustments */
+    @media screen and (max-width: 768px) {
+      .recommendation-card-mini {
+        flex: 0 0 230px;
+      }
+    }
+  </style>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      loadRecommendationWidget();
+    });
+    
+    function loadRecommendationWidget() {
+      const slider = document.getElementById('recommendation-slider');
+      const currentUser = getCurrentUser();
+      
+      if (!currentUser) {
+        // Show popular recommendations for non-logged in users
+        fetchRecommendations('/api/recommendations/popular')
+          .then(displayRecommendations)
+          .catch(handleRecommendationError);
+      } else {
+        // Show personalized recommendations for logged in users
+        fetchRecommendations('/api/recommendations/wishlist')
+          .then(displayRecommendations)
+          .catch(err => {
+            console.error('Failed to get wishlist recommendations:', err);
+            // Fallback to popular
+            fetchRecommendations('/api/recommendations/popular')
+              .then(displayRecommendations)
+              .catch(handleRecommendationError);
+          });
+      }
+      
+      function fetchRecommendations(endpoint) {
+        return fetch(endpoint)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Failed to fetch recommendations');
+            }
+            return response.json();
+          });
+      }
+      
+      function displayRecommendations(data) {
+        const recommendations = data.recommendations || [];
+        
+        // Hide loader
+        const loader = slider.querySelector('.slider-loader');
+        if (loader) {
+          loader.style.display = 'none';
+        }
+        
+        if (recommendations.length === 0) {
+          slider.innerHTML = '<p style="text-align: center; width: 100%;">No recommendations available.</p>';
+          return;
+        }
+        
+        // Display up to 6 recommendations
+        const limitedRecommendations = recommendations.slice(0, 6);
+        
+        // Create HTML for each recommendation
+        const recommendationCards = limitedRecommendations.map(createRecommendationCardMini).join('');
+        
+        // Add to slider
+        slider.innerHTML += recommendationCards;
+        
+        // Add click event to each card
+        document.querySelectorAll('.recommendation-card-mini').forEach(card => {
+          card.addEventListener('click', function() {
+            const link = this.getAttribute('data-link');
+            const title = this.getAttribute('data-title');
+            
+            // Store as last viewed
+            localStorage.setItem('lastViewedDestination', title);
+            
+            // Track this view
+            const currentUser = getCurrentUser();
+            if (currentUser && currentUser.email) {
+              fetch('/api/track/view', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ destination: title })
+              }).catch(err => console.error('Failed to track view:', err));
+            }
+            
+            // Navigate to the destination page
+            window.location.href = link;
+          });
+        });
+      }
+      
+      function handleRecommendationError(error) {
+        console.error('Recommendation error:', error);
+        
+        // Hide loader
+        const loader = slider.querySelector('.slider-loader');
+        if (loader) {
+          loader.style.display = 'none';
+        }
+        
+        // Show error message
+        slider.innerHTML = `<p style="text-align: center; width: 100%;">Unable to load recommendations.</p>`;
+        
+        // Use fallback recommendations directly defined here
+        const fallbackRecs = getWidgetFallbackRecommendations();
+        if (fallbackRecs && fallbackRecs.length > 0) {
+          displayRecommendations({recommendations: fallbackRecs});
+        }
+      }
+      
+      // Internal fallback recommendations specifically for this widget
+      function getWidgetFallbackRecommendations() {
+        return [
+          {
+            id: "jog-falls",
+            title: "Jog Falls",
+            description: "One of the highest waterfalls in India with a spectacular view.",
+            image: "images/44.png",
+            tags: ["Waterfall", "Scenic"],
+            link: "karnataka.html"
+          },
+          {
+            id: "fort-kochi",
+            title: "Fort Kochi",
+            description: "A historic area offering a picturesque and quaint atmosphere.",
+            image: "images/6.jpg",
+            tags: ["History", "Culture"],
+            link: "kerala.html"
+          },
+          {
+            id: "gateway-india",
+            title: "Gateway of India",
+            description: "Iconic monument overlooking the Arabian Sea in Mumbai.",
+            image: "images/71.jpg",
+            tags: ["History", "Landmark"],
+            link: "maharashtra.html"
+          }
+        ];
+      }
+      
+      function createRecommendationCardMini(recommendation) {
+        // Format tags
+        const tags = Array.isArray(recommendation.tags) 
+          ? recommendation.tags.slice(0, 2) 
+          : (typeof recommendation.tags === 'string' 
+              ? recommendation.tags.split(' ').slice(0, 2) 
+              : ['Travel']);
+              
+        return `
+          <div class="recommendation-card-mini" data-link="${recommendation.link}" data-title="${recommendation.title}">
+            <img src="${recommendation.image}" alt="${recommendation.title}">
+            <div class="card-content">
+              <h3 class="card-title">${recommendation.title}</h3>
+              <p class="card-description">${recommendation.description.substring(0, 60)}${recommendation.description.length > 60 ? '...' : ''}</p>
+              <div class="card-tags">
+                ${tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    }
+  </script>

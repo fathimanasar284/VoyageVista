@@ -1,0 +1,257 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f0f8ff;
+}
+
+/* Transparent Navigation Bar */
+.transparent-nav {
+    background: transparent; /* Transparent to blend with the hero image */
+    padding: 10px 20px;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Search Bar aligned to the left */
+.suggestions-box {
+    position: absolute;
+    top: 38px; /* slightly below the input */
+    left: 0;
+    width: 200px; /* match input width */
+    background-color: white;
+    border: 1px solid #ccc;
+    border-top: none;
+    z-index: 1001;
+    max-height: 200px;
+    overflow-y: auto;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 0 0 5px 5px;
+}
+
+#suggestions {
+    border: 1px solid #ccc;
+    max-height: 200px;
+    overflow-y: auto;
+    background-color: white;
+    position: absolute;
+    z-index: 999;
+}
+
+.suggestion-item {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.suggestion-item:hover {
+    background-color: #f0f0f0;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    position: relative;
+}
+
+.search-bar input {
+    padding: 8px;
+    width: 200px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-right: 5px;
+}
+
+.search-bar button {
+    padding: 8px 12px;
+    font-size: 14px;
+    background-color: rgba(0, 0, 255, 0.43);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.search-bar button:hover {
+    background-color: #e65c00;
+}
+
+
+
+.nav-links a {
+    color: #fff;
+    text-decoration: none;
+    padding: 10px 20px;
+    transition: 0.3s;
+}
+
+.nav-links a:hover {
+    background-color: #ff6600;
+    border-radius: 5px;
+}
+
+.hero {
+    background: url("115.jpg") no-repeat center center/cover;
+    height: 500px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.hero h1 {
+    color: white;
+    font-size: 5rem;
+    font-weight: bold;
+    text-shadow: 3px 3px 12px rgba(0, 0, 0, 0.7); /* For improved readability */
+    background: none; /* Removed black background */
+    padding: 20px 40px;
+    border-radius: 10px;
+    z-index: 2;
+    animation: fadeIn 2s ease-in-out;
+}
+
+.destinations-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 40px;
+    justify-content: center;
+}
+
+.destination {
+    background-color: #fff;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    width: 300px;
+    text-align: center;
+}
+
+.destination img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.destination h3 {
+    margin: 15px 0;
+    color: #333;
+}
+
+.destination:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+
+.nav-links i.fa-heart {
+    color: red; /* Sets the heart icon color to red */
+}
+
+.nav-links i.fa-heart:hover {
+    color: #ff3333; /* A slightly lighter red on hover */
+}
+
+/* User Avatar Styles */
+.user-avatar {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    margin-left: 15px;
+}
+
+.avatar-circle {
+    width: 40px;
+    height: 40px;
+    background-color: #4299e1;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.avatar-text {
+    text-transform: uppercase;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: white;
+    min-width: 160px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.dropdown-content span {
+    color: #333;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    font-weight: bold;
+    border-bottom: 1px solid #eee;
+}
+
+.dropdown-content a {
+    color: #333 !important;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    background-color: transparent !important;
+}
+
+.dropdown-content a:hover {
+    background-color: #f5f5f5 !important;
+    color: #0084ff !important;
+}
+
+.user-avatar:hover .dropdown-content {
+    display: block;
+}
+
+/* For mobile responsiveness */
+@media screen and (max-width: 768px) {
+    .avatar-circle {
+        width: 35px;
+        height: 35px;
+        font-size: 16px;
+    }
+    
+    .nav-links {
+        display: flex;
+        align-items: center;
+    }
+}
+
+/* Make sure avatar styling looks good on all pages */
+.transparent-nav .user-avatar .avatar-circle {
+    background-color: #4299e1;
+}
+
+nav .user-avatar .avatar-circle {
+    background-color: #4299e1;
+}
+
+/* Specific override for the Maharashtra page */
+nav .user-container {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+}

@@ -1,0 +1,16 @@
+┌─────────────────────────────────────────────────────┐
+│                   VOYAGE VISTA                      │
+│               SYSTEM ARCHITECTURE                   │
+├─────────────────────────────────────────────────────┤
+│                                                     │
+│  User Interface → Flask Server → Recommendation     │
+│        ↑               ↑               Model        │
+│        │               │                            │
+│        ↓               ↓                            │
+│  AI Chatbot ←──→ Google Gemini API                  │
+│        ↑                                            │
+│        │                                            │
+│        ↓                                            │
+│  Database (places_data.py)                          │
+│                                                     │
+└─────────────────────────────────────────────────────┘

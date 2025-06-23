@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VoyageVista Travel Bot</title>
+  <script src="auth.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #b2fefa, #0ed2f7);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .chat-wrapper {
+      width: 400px;
+      max-width: 95%;
+      height: 600px;
+      background-color: #fff;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .chat-header {
+      background-color: #0084ff;
+      color: white;
+      padding: 16px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    .chat-box {
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background-color: #f5f5f5;
+    }
+    
+    .user-msg, .bot-msg {
+      padding: 12px 16px;
+      border-radius: 18px;
+      max-width: 75%;
+      line-height: 1.4;
+      word-wrap: break-word;
+      font-size: 15px;
+    }
+    
+    .user-msg {
+      align-self: flex-end;
+      background-color: #d1e7ff;
+      border-bottom-right-radius: 4px;
+    }
+    
+    .bot-msg {
+      align-self: flex-start;
+      background-color: #fff;
+      border-bottom-left-radius: 4px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+    
+    .bot-msg a {
+      color: #0084ff;
+      text-decoration: none;
+    }
+    
+    .bot-msg a:hover {
+      text-decoration: underline;
+    }
+    
+    .bot-typing {
+      align-self: flex-start;
+      background-color: #fff;
+      border-radius: 18px;
+      padding: 10px 14px;
+      border-bottom-left-radius: 4px;
+      display: none;
+    }
+    
+    .typing-animation {
+      display: flex;
+      gap: 4px;
+    }
+    
+    .typing-dot {
+      width: 6px;
+      height: 6px;
+      background-color: #777;
+      border-radius: 50%;
+      animation: typing-animation 1.4s infinite ease-in-out;
+    }
+    
+    /* User Avatar Styles for Chatbot page */
+  .user-avatar {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    margin-left: 15px;
+  }
+
+  .avatar-circle {
+    width: 40px;
+    height: 40px;
+    background-color: #4299e1;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  }
+
+  .avatar-text {
+    text-transform: uppercase;
+  }
+
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: white;
+    min-width: 160px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .dropdown-content span {
+    color: #333;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    font-weight: bold;
+    border-bottom: 1px solid #eee;
+  }
+
+  .dropdown-content a {
+    color: #333;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+  }
+
+  .dropdown-content a:hover {
+    background-color: #f5f5f5;
+  }
+
+  .user-avatar:hover .dropdown-content {
+    display: block;
+  }
+
+  /* Add a user container for the chatbot header */
+  .chat-header {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .chat-header-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .chat-header-user {
+    display: flex;
+    align-items: center;
+  }
+    .typing-dot:nth-child(1) { animation-delay: 0s; }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    
+    @keyframes typing-animation {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-5px); }
+    }
+    
+    .suggestions-container {
+      display: flex;
+      padding: 10px 15px;
+      gap: 8px;
+      overflow-x: auto;
+      border-top: 1px solid #eee;
+      position: relative;
+      background-color: #fff;
+      scrollbar-width: none;
+    }
+    
+    .suggestions-container::-webkit-scrollbar {
+      display: none;
+    }
+    
+    .suggestion-controls {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 5px;
+    }
+    
+    .suggestion-scroll {
+      width: 24px;
+      height: 24px;
+      background-color: rgba(255, 255, 255, 0.9);
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      pointer-events: auto;
+    }
+    
+    .suggestion {
+      white-space: nowrap;
+      padding: 8px 16px;
+      background-color: #f0f0f0;
+      border-radius: 50px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      color: #333;
+    }
+    
+    .suggestion:hover {
+      background-color: #e6e6e6;
+    }
+    
+    .chat-input-container {
+      padding: 15px;
+      background-color: #fff;
+      position: relative;
+    }
+    
+    .chat-input-wrap {
+      display: flex;
+      position: relative;
+    }
+    
+    #user-input {
+      flex: 1;
+      padding: 12px 16px;
+      border: 1px solid #ddd;
+      border-radius: 50px;
+      font-size: 15px;
+      outline: none;
+      background-color: #f5f5f5;
+    }
+    
+    #user-input:focus {
+      border-color: #0084ff;
+      background-color: #fff;
+    }
+    
+    .send-button {
+      position: absolute;
+      right: 5px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 36px;
+      height: 36px;
+      background-color: #0084ff;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+    }
+    
+    .send-button:hover {
+      background-color: #006fd6;
+    }
+    
+    .progress-container {
+      width: 100%;
+      height: 4px;
+      background-color: #f0f0f0;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+    }
+    
+    .progress-bar {
+      height: 100%;
+      background-color: #0084ff;
+      width: 0;
+      transition: width 0.3s;
+    }
+
+    /* User Avatar Styles */
+    .user-avatar {
+      position: relative;
+      display: inline-block;
+      cursor: pointer;
+      margin-left: 15px;
+    }
+
+    .avatar-circle {
+      width: 40px;
+      height: 40px;
+      background-color: #4299e1;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 20px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .avatar-text {
+      text-transform: uppercase;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      background-color: white;
+      min-width: 160px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      z-index: 1;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .dropdown-content span {
+      color: #333;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+      font-weight: bold;
+      border-bottom: 1px solid #eee;
+    }
+
+    .dropdown-content a {
+      color: #333 !important;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+      background-color: transparent !important;
+    }
+
+    .dropdown-content a:hover {
+      background-color: #f5f5f5 !important;
+      color: #0084ff !important;
+    }
+
+    .user-avatar:hover .dropdown-content {
+      display: block;
+    }
+
+    /* For mobile responsiveness */
+    @media screen and (max-width: 768px) {
+      .avatar-circle {
+          width: 35px;
+          height: 35px;
+          font-size: 16px;
+      }
+    
+      .nav-links {
+          display: flex;
+          align-items: center;
+      }
+    }
+
+     /* Make sure avatar styling looks good on all pages */
+    .transparent-nav .user-avatar .avatar-circle {
+         background-color: #4299e1;
+    }
+
+    nav .user-avatar .avatar-circle {
+        background-color: #4299e1;
+    }
+
+    /* Specific override for the Maharashtra page */
+    nav .user-container {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-wrapper">
+    <div class="chat-header-title">
+      <span>🌍</span> VoyageVista Travel Bot
+    </div>
+    <div class="chat-header-user" id="chatHeaderUser">
+      <!-- User avatar will be added here by script -->
+    </div>
+    <div class="chat-box" id="chat-box">
+      <div class="bot-msg">Hi there! I'm your VoyageVista travel assistant. How can I help you today?</div>
+      <div class="bot-typing" id="bot-typing">
+        <div class="typing-animation">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+      </div>
+    </div>
+    <div class="suggestions-container" id="suggestions-container">
+      <div class="suggestion" onclick="useRecommendation(this)">Popular destinations</div>
+      <div class="suggestion" onclick="useRecommendation(this)">Budget travel tips</div>
+      <div class="suggestion" onclick="useRecommendation(this)">Best time to visit</div>
+      <div class="suggestion" onclick="useRecommendation(this)">Family-friendly destinations</div>
+      <div class="suggestion" onclick="useRecommendation(this)">Travel in Karnataka</div>
+      <div class="suggestion" onclick="useRecommendation(this)">Kerala backwaters</div>
+      <div class="suggestion" onclick="useRecommendation(this)">Maharashtra attractions</div>
+      <div class="suggestion-controls">
+        <div class="suggestion-scroll" id="scroll-left">◄</div>
+        <div class="suggestion-scroll" id="scroll-right">►</div>
+      </div>
+    </div>
+    <div class="progress-container">
+      <div class="progress-bar" id="progress-bar"></div>
+    </div>
+    <div class="chat-input-container">
+      <div class="chat-input-wrap">
+        <input type="text" id="user-input" placeholder="Ask about any destination..." autocomplete="off">
+        <button class="send-button" id="send-button">➤</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // DOM elements
+    const chatBox = document.getElementById('chat-box');
+    const userInput = document.getElementById('user-input');
+    const sendButton = document.getElementById('send-button');
+    const botTyping = document.getElementById('bot-typing');
+    const progressBar = document.getElementById('progress-bar');
+    const suggestionsContainer = document.getElementById('suggestions-container');
+    const scrollLeft = document.getElementById('scroll-left');
+    const scrollRight = document.getElementById('scroll-right');
+    
+    // Travel knowledge base for the chatbot
+    const travelKnowledge = {
+      greetings: ["Hi", "Hello", "Hey", "Hi there", "Hello there", "Hey there"],
+      welcomeMessages: [
+        "Welcome to VoyageVista! How can I help with your travel plans today?",
+        "Hello traveler! I'm your VoyageVista assistant. Where would you like to explore?",
+        "Hi there! Ready to plan your next adventure? Ask me anything about travel destinations!"
+      ],
+      destinations: {
+        // Karnataka
+        "bangalore": {
+          info: "Bangalore is known as the Silicon Valley of India, with a pleasant climate, beautiful parks, and a vibrant tech scene.",
+          attractions: ["Lalbagh Botanical Garden", "Bangalore Palace", "Cubbon Park", "Wonderla Amusement Park", "Nandi Hills"],
+          bestTime: "October to February offers pleasant weather with temperatures between 15-25°C.",
+          tip: "Use the Namma Metro to avoid traffic congestion in the city center."
+        },
+        "mysore": {
+          info: "Mysore is famous for its grand palaces, rich heritage, and the spectacular Dasara festival.",
+          attractions: ["Mysore Palace", "Chamundi Hills", "Brindavan Gardens", "St. Philomena's Church", "Devaraja Market"],
+          bestTime: "October to March for comfortable temperatures and festive celebrations.",
+          tip: "Visit the Mysore Palace in the evening when it's illuminated with thousands of lights."
+        },
+        "hampi": {
+          info: "Hampi is a UNESCO World Heritage Site with ancient ruins, boulder-strewn landscapes, and historical significance.",
+          attractions: ["Virupaksha Temple", "Vittala Temple", "Lotus Mahal", "Elephant Stables", "Hemakuta Hill"],
+          bestTime: "November to February for comfortable exploration conditions.",
+          tip: "Rent a bicycle or moped to navigate between the scattered monuments."
+        },
+        
+        // Kerala
+        "munnar": {
+          info: "Munnar is a hill station known for its tea plantations, misty mountains, and cool climate.",
+          attractions: ["Tea Plantations", "Eravikulam National Park", "Mattupetty Dam", "Top Station", "Tea Museum"],
+          bestTime: "September to May when the weather is pleasant and less rainy.",
+          tip: "Take a guided tour of a tea plantation to learn about the tea-making process."
+        },
+        "alleppey": {
+          info: "Alleppey, also known as Alappuzha, is famous for its backwaters, houseboat cruises, and serene canals.",
+          attractions: ["Backwater Houseboat Stay", "Alleppey Beach", "Pathiramanal Island", "Krishnapuram Palace", "Marari Beach"],
+          bestTime: "November to February for clear skies and comfortable houseboat experiences.",
+          tip: "Book a traditional kettuvallam (houseboat) for an authentic backwater experience."
+        },
+        "kochi": {
+          info: "Kochi is a coastal city with colonial history, diverse culture, and beautiful waterfront areas.",
+          attractions: ["Fort Kochi", "Chinese Fishing Nets", "Mattancherry Palace", "Jew Town", "Marine Drive"],
+          bestTime: "October to March for pleasant coastal weather.",
+          tip: "Take a ferry to get between the different islands and parts of the city."
+        },
+        
+        // Maharashtra
+        "mumbai": {
+          info: "Mumbai is India's financial capital, known for its bustling energy, Bollywood, and coastal charm.",
+          attractions: ["Gateway of India", "Marine Drive", "Elephanta Caves", "Siddhivinayak Temple", "Chhatrapati Shivaji Terminus"],
+          bestTime: "November to February for pleasant, less humid weather.",
+          tip: "Use the local train system for efficient travel around the city."
+        },
+        "pune": {
+          info: "Pune is a cultural and educational hub with historical significance and pleasant climate.",
+          attractions: ["Aga Khan Palace", "Shaniwar Wada", "Osho Ashram", "Sinhagad Fort", "Dagdusheth Halwai Ganpati Temple"],
+          bestTime: "October to March for comfortable temperatures.",
+          tip: "Try the local specialty, Mastani, a rich ice cream dessert unique to Pune."
+        },
+        "aurangabad": {
+          info: "Aurangabad is known for its proximity to the UNESCO World Heritage Sites of Ajanta and Ellora Caves.",
+          attractions: ["Ellora Caves", "Ajanta Caves", "Bibi Ka Maqbara", "Daulatabad Fort", "Grishneshwar Temple"],
+          bestTime: "November to March when the weather is cooler and ideal for exploring caves.",
+          tip: "Allocate separate days for visiting Ajanta and Ellora as both require significant time."
+        }
+      },
+      travelTips: {
+        "budget": [
+          "Travel during off-season for lower accommodation rates",
+          "Use public transportation where available instead of taxis",
+          "Eat at local restaurants rather than tourist spots",
+          "Book accommodations with kitchen facilities to prepare some meals",
+          "Look for free walking tours and attractions"
+        ],
+        "safety": [
+          "Keep digital copies of important documents in cloud storage",
+          "Use registered taxi services or ride-sharing apps",
+          "Be aware of common scams in tourist areas",
+          "Purchase travel insurance for medical emergencies",
+          "Register with your embassy if traveling to remote areas"
+        ],
+        "packing": [
+          "Pack light and versatile clothing that can be layered",
+          "Bring a universal power adapter for electronics",
+          "Include basic medications and a small first-aid kit",
+          "Use packing cubes for organization",
+          "Carry a reusable water bottle to stay hydrated"
+        ],
+        "family": [
+          "Choose accommodations with family-friendly amenities",
+          "Plan itineraries with plenty of breaks for children",
+          "Research child-friendly activities at your destination",
+          "Pack snacks and entertainment for transit times",
+          "Consider renting apartments for more space and kitchen facilities"
+        ]
+      },
+      generalInfo: {
+        "karnataka": "Karnataka is known for its ancient ruins, beaches, hill stations, and tech hubs. Popular destinations include Bangalore, Mysore, Hampi, and Coorg.",
+        "kerala": "Kerala, known as 'God's Own Country,' features backwaters, hill stations, wildlife sanctuaries, and beautiful beaches. Key destinations include Munnar, Alleppey, Kochi, and Kovalam.",
+        "maharashtra": "Maharashtra offers diverse experiences from bustling cities to ancient caves, hill stations, and beaches. Major attractions include Mumbai, Pune, Aurangabad with Ajanta-Ellora caves, and the Konkan coast."
+      },
+      bestTimeToVisit: {
+        "karnataka": "October to February is ideal for most parts of Karnataka with pleasant temperatures.",
+        "kerala": "September to March offers comfortable weather in Kerala, avoiding the monsoon season.",
+        "maharashtra": "October to March is the best time to visit Maharashtra when the weather is dry and comfortable."
+      }
+    };
+    
+    // Initialize chat
+    window.onload = function() {
+      userInput.focus();
+      scrollFunctionality();
+    };
+    
+    // Send message function
+    function sendMessage() {
+      const message = userInput.value.trim();
+      if (message === '') return;
+      
+      // Add user message to chat
+      addMessage(message, 'user');
+      userInput.value = '';
+      
+      // Show typing animation
+      botTyping.style.display = 'block';
+      chatBox.scrollTop = chatBox.scrollHeight;
+      
+      // Simulate progress bar
+      simulateProgress();
+      
+      // Generate bot response after a delay
+      setTimeout(() => {
+        // Hide typing animation
+        botTyping.style.display = 'none';
+        
+        // Get bot response
+        const botResponse = generateResponse(message);
+        
+        // Add bot message to chat
+        addMessage(botResponse, 'bot');
+      }, 1500);
+    }
+    
+    // Add message to chat box
+    function addMessage(message, sender) {
+      const messageElement = document.createElement('div');
+      messageElement.className = sender === 'user' ? 'user-msg' : 'bot-msg';
+      
+      // If it's a bot message, process for links
+      if (sender === 'bot') {
+        // Process for links to state pages
+        message = message.replace(/(Karnataka|Kerala|Maharashtra)/g, 
+          '<a href="$1.html">$1</a>');
+        
+        // Process for links to cities if they are in our knowledge base
+        Object.keys(travelKnowledge.destinations).forEach(city => {
+          const cityCapitalized = city.charAt(0).toUpperCase() + city.slice(1);
+          const regex = new RegExp(`\\b${cityCapitalized}\\b`, 'g');
+          message = message.replace(regex, `<a href="#${city}">${cityCapitalized}</a>`);
+        });
+      }
+      
+      messageElement.innerHTML = message;
+      chatBox.appendChild(messageElement);
+      
+      // Scroll to bottom
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+    
+    // Generate bot response based on user message
+    function generateResponse(message) {
+      message = message.toLowerCase();
+      
+      // Check for greetings
+      if (/^(hi|hello|hey|greetings|howdy)(\s|$)/i.test(message)) {
+        const randomGreeting = travelKnowledge.greetings[Math.floor(Math.random() * travelKnowledge.greetings.length)];
+        const randomWelcome = travelKnowledge.welcomeMessages[Math.floor(Math.random() * travelKnowledge.welcomeMessages.length)];
+        return `${randomGreeting}! ${randomWelcome}`;
+      }
+      
+      // Check for Karnataka, Kerala, or Maharashtra mentions
+      if (message.includes("karnataka")) {
+        return `${travelKnowledge.generalInfo.karnataka} ${travelKnowledge.bestTimeToVisit.karnataka}`;
+      }
+      
+      if (message.includes("kerala")) {
+        return `${travelKnowledge.generalInfo.kerala} ${travelKnowledge.bestTimeToVisit.kerala}`;
+      }
+      
+      if (message.includes("maharashtra")) {
+        return `${travelKnowledge.generalInfo.maharashtra} ${travelKnowledge.bestTimeToVisit.maharashtra}`;
+      }
+      
+      // Check for specific cities
+      for (const [city, info] of Object.entries(travelKnowledge.destinations)) {
+        if (message.includes(city)) {
+          let response = `${info.info} Popular attractions include ${info.attractions.slice(0, 3).join(', ')}. ${info.bestTime} ${info.tip}`;
+          return response;
+        }
+      }
+      
+      // Check for budget travel tips
+      if (message.includes("budget") || message.includes("cheap") || message.includes("save money")) {
+        const tips = travelKnowledge.travelTips.budget.join(". ");
+        return `Here are some budget travel tips: ${tips}`;
+      }
+      
+      // Check for best time to visit
+      if (message.includes("best time") || message.includes("when to visit") || message.includes("season")) {
+        if (message.includes("india")) {
+          return `The best time to visit India varies by region: North India (October to March), South India (November to February), Northeast India (March to June), and the Himalayas (April to June).`;
+        } else {
+          return `For Karnataka: ${travelKnowledge.bestTimeToVisit.karnataka}\nFor Kerala: ${travelKnowledge.bestTimeToVisit.kerala}\nFor Maharashtra: ${travelKnowledge.bestTimeToVisit.maharashtra}`;
+        }
+      }
+      
+      // Check for family travel
+      if (message.includes("family") || message.includes("kid") || message.includes("children")) {
+        const tips = travelKnowledge.travelTips.family.join(". ");
+        return `For family travel: ${tips}`;
+      }
+      
+      // Check for safety tips
+      if (message.includes("safety") || message.includes("safe") || message.includes("security")) {
+        const tips = travelKnowledge.travelTips.safety.join(". ");
+        return `Here are some travel safety tips: ${tips}`;
+      }
+      
+      // Check for popular destinations
+      if (message.includes("popular") || message.includes("recommend") || message.includes("suggestion")) {
+        return `Some popular destinations in India include: 
+        In Karnataka: Bangalore, Mysore, and Hampi. 
+        In Kerala: Munnar, Alleppey, and Kochi. 
+        In Maharashtra: Mumbai, Pune, and the Ajanta-Ellora caves near Aurangabad.`;
+      }
+      
+      // Default response
+      return "I'd be happy to help with that! Could you please specify which state or destination you're interested in? I have information about Karnataka, Kerala, and Maharashtra.";
+    }
+    
+    // Use recommendation from suggestion chips
+    function useRecommendation(element) {
+      userInput.value = element.textContent;
+      sendMessage();
+    }
+    
+    // Simulate progress bar
+    function simulateProgress() {
+      let width = 0;
+      progressBar.style.width = '0%';
+      
+      const interval = setInterval(() => {
+        if (width >= 100) {
+          clearInterval(interval);
+        } else {
+          width += 5;
+          progressBar.style.width = width + '%';
+        }
+      }, 75);
+    }
+    
+    // Scroll functionality for suggestion chips
+    function scrollFunctionality() {
+      scrollLeft.addEventListener('click', () => {
+        suggestionsContainer.scrollBy({ left: -200, behavior: 'smooth' });
+      });
+      
+      scrollRight.addEventListener('click', () => {
+        suggestionsContainer.scrollBy({ left: 200, behavior: 'smooth' });
+      });
+    }
+    
+    // Event listeners
+    sendButton.addEventListener('click', sendMessage);
+    
+    userInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const currentUser = getCurrentUser();
+      const chatHeaderUser = document.getElementById('chatHeaderUser');
+    
+      if (currentUser && chatHeaderUser) {
+      // Create user avatar
+        const userAvatar = document.createElement('div');
+        userAvatar.className = 'user-avatar';
+      
+        // Get first letter of username for the avatar
+        const firstLetter = currentUser.username.charAt(0).toUpperCase();
+        userAvatar.innerHTML = `
+          <div class="avatar-circle">
+            <span class="avatar-text">${firstLetter}</span>
+          </div>
+          <div class="dropdown-content">
+            <span>${currentUser.username}</span>
+            <a href="#" onclick="logoutUser()">Log Out</a>
+          </div>
+        `;
+      
+        chatHeaderUser.appendChild(userAvatar);
+      }
+    });
+  </script>
+</body>
+</html>
