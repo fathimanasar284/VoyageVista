@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Wishlist - VoyageVista</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f0f8ff;
+    }
+
+    /* Transparent Navigation Bar */
+    .transparent-nav {
+      background: transparent;
+      padding: 10px 20px;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-links a {
+      color: #fff;
+      text-decoration: none;
+      padding: 10px 20px;
+      transition: 0.3s;
+    }
+
+    .nav-links a:hover {
+      background-color: #ff6600;
+      border-radius: 5px;
+    }
+
+    .hero {
+      background: url("115.jpg") no-repeat center center/cover;
+      height: 400px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .hero h1 {
+      color: white;
+      font-size: 4rem;
+      font-weight: bold;
+      text-shadow: 3px 3px 12px rgba(0, 0, 0, 0.7);
+      background: none;
+      padding: 20px 40px;
+      border-radius: 10px;
+      z-index: 2;
+      animation: fadeIn 2s ease-in-out;
+    }
+
+    .wishlist-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      padding: 40px;
+      justify-content: center;
+    }
+
+    .card {
+      background-color: #fff;
+      border: 2px solid #ddd;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      width: 300px;
+      text-align: center;
+    }
+
+    .card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+
+    .card-content {
+      padding: 1rem;
+    }
+
+    .card-title {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin: 0.5rem 0;
+      color: #333;
+    }
+
+    .card-description {
+      font-size: 0.95rem;
+      color: #555;
+      margin-bottom: 1rem;
+    }
+
+    .card-buttons {
+      display: flex;
+      justify-content: space-between;
+      padding: 0 10px 10px 10px;
+      gap: 0.5rem;
+    }
+
+    .card-buttons button {
+      flex: 1;
+      padding: 8px;
+      border: none;
+      border-radius: 5px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .btn-directions {
+      background-color: #2563eb;
+      color: white;
+    }
+
+    .btn-directions:hover {
+      background-color: #1e40af;
+    }
+
+    .btn-remove {
+      background-color: #f87171;
+      color: white;
+    }
+
+    .btn-remove:hover {
+      background-color: #b91c1c;
+    }
+
+    .no-items {
+      text-align: center;
+      padding: 2rem;
+      color: #888;
+      font-size: 1.2rem;
+    }
+
+    /* User Avatar Styles */
+    .user-avatar {
+      position: relative;
+      display: inline-block;
+      cursor: pointer;
+      margin-left: 15px;
+    }
+
+    .avatar-circle {
+      width: 40px;
+      height: 40px;
+      background-color: #4299e1;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 20px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .avatar-text {
+      text-transform: uppercase;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      background-color: white;
+      min-width: 160px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      z-index: 1;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .dropdown-content span {
+      color: #333;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+      font-weight: bold;
+      border-bottom: 1px solid #eee;
+    }
+
+    .dropdown-content a {
+      color: #333 !important;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+      background-color: transparent !important;
+    }
+
+    .dropdown-content a:hover {
+      background-color: #f5f5f5 !important;
+      color: #0084ff !important;
+    }
+
+    .user-avatar:hover .dropdown-content {
+      display: block;
+    }
+
+    /* For mobile responsiveness */
+    @media screen and (max-width: 768px) {
+      .avatar-circle {
+         width: 35px;
+         height: 35px;
+         font-size: 16px;
+      }
+    
+      .nav-links {
+         display: flex;
+         align-items: center;
+      }
+    }
+
+    /* Make sure avatar styling looks good on all pages */
+    .transparent-nav .user-avatar .avatar-circle {
+        background-color: #4299e1;
+    }
+
+    nav .user-avatar .avatar-circle {
+      background-color: #4299e1;
+    }
+
+    /* Specific override for the Maharashtra page */
+    nav .user-container {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+    }
+  </style>
+  <script src="auth.js"></script>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <div class="transparent-nav">
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="destinations.html">Destinations</a>
+      <a href="reviews.html">Reviews</a>
+      <a href="chatbot.html" title="Travel Chatbot"><i class="fas fa-robot"></i> AI</a>
+      <a href="wishlist.html" title="Wishlist"><i class="fas fa-heart"></i></a>
+    </div>
+  </div>
+
+  <!-- Hero Section -->
+  <div class="hero">
+    <h1>My Wishlist</h1>
+  </div>
+
+  <!-- Wishlist Cards -->
+  <div class="wishlist-container" id="wishlist"></div>
+  <div class="no-items" id="no-items" style="display: none;">Your wishlist is empty.</div>
+
+  <script>
+    function loadWishlist() {
+      const data = JSON.parse(localStorage.getItem("wishlist")) || [];
+      const container = document.getElementById("wishlist");
+      const noItems = document.getElementById("no-items");
+
+      container.innerHTML = "";
+
+      if (data.length === 0) {
+        noItems.style.display = "block";
+        return;
+      }
+
+      noItems.style.display = "none";
+
+      data.forEach(spot => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <img src="${spot.image}" alt="${spot.name}">
+          <div class="card-content">
+            <div class="card-title">${spot.name}</div>
+            <div class="card-description">${spot.description}</div>
+            <div class="card-buttons">
+              <button class="btn-directions" onclick="window.open('${spot.mapUrl || 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(spot.name)}')">Directions</button>
+              <button class="btn-remove" onclick="removeFromWishlist('${spot.spot_id}')">Remove</button>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function removeFromWishlist(spotId) {
+      let wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+      wishlist = wishlist.filter(item => item.spot_id !== spotId);
+      localStorage.setItem("wishlist", JSON.stringify(wishlist));
+      loadWishlist();
+    }
+
+    loadWishlist();
+
+     // Additional check to show wishlist only for logged-in users
+     document.addEventListener('DOMContentLoaded', function() {
+      const currentUser = getCurrentUser();
+      if (!currentUser) {
+        document.getElementById('wishlist').innerHTML = '<div class="no-items">Please <a href="signin.html">sign in</a> to view your wishlist.</div>';
+      }
+    });
+  </script>
+
+</body>
+</html>
